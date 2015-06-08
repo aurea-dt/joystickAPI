@@ -25,10 +25,10 @@ all: Project
 
 Project: mainP.o ADT_joystick.o
 	$(CC) -export-dynamic -o $(APPNAME) \
-	$(LIBS) \
-	-L $(libADT) \
 	$(mainP).o \
 	ADT_joystick.o \
+	$(LIBS) \
+	-L $(libADT) \
 	-lADT
 	
 mainP.o: $(mainP).cpp
