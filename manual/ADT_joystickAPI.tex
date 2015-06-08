@@ -1,0 +1,126 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{graphicx}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc} %instalar latex-ucs.
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage[colorlinks=true]{hyperref}
+
+% Title Page
+\title{ADT\_joystick API\\ Conexión con el puerto de juegos en C++}
+\author{Mario Chririnos Colunga\\ Áurea - Desarrollo Tecnológico}
+
+
+\begin{document}
+\maketitle
+
+% \begin{abstract}
+% 
+% \end{abstract}
+
+\tableofcontents
+\section{Introducción}
+En este documento se describe nuestra interfaz de programación de aplicaciones para la conexión con \textit{joystick} o \textit{gamepads} conectados a un puerto de juegos. Se utlizia \href{http://library.gnome.org/devel/glib/}{glib} para monitorizar el estado del puerto de juegos y generar eventos. El documento está estructurado de la siguiente manera: en la sección \S\ref{api} describe el funcionamiento de nuestro código, la sección \S\ref{ejemplo} describe detalles relacionados al ejemplo incluido con el código fuente y la sección \S\ref{notas} proporciona notas y comentarios finales sobre este documento. 
+
+\section{ADT\_joystick API}
+\label{api}
+
+\begin{figure}
+
+  \lstset{language=c++}
+  \lstset{commentstyle=\textit}
+  \tiny
+  \begin{lstlisting}[frame=trbl]{}
+#ifndef ADT_JOYSTICK_H
+#define ADT_JOYSTICK_H
+//------------------------------------------------------------------------------
+#include <glib.h>
+#include <linux/joystick.h>
+#include <vector>
+using namespace std;
+typedef void (*jsPt2Function)(unsigned int number, int value, void *userdata);
+//------------------------------------------------------------------------------
+class JsData
+{
+ public:
+	char name[80];
+	int nAxis;
+	int nButtons;
+	JsData();
+};
+//------------------------------------------------------------------------------
+class ADT_joystick
+{
+ public:
+	int enumJoysticks();
+	int connect(const char *filename);
+	int readJs();
+	void setAxisCallback(jsPt2Function _fpt);
+	void unsetAxisCallback();
+	void setButtonCallback(jsPt2Function _fpt);
+	void unsetButtonCallback();
+
+	vector<JsData> getList() const;
+	const char* getDevName() const;
+	const char* getName() const;
+	unsigned int getAxisCount() const;
+	unsigned int getButtonCount() const;
+	int getAxis(unsigned int i) const;
+	bool getButton(unsigned int i) const;
+
+	ADT_joystick();
+	~ADT_joystick();
+};
+//------------------------------------------------------------------------------
+#endif
+
+  \end{lstlisting}
+  \caption{ADT\_joystick.h}
+  \label{joystick.h}
+\end{figure}
+  \subsection{Requisitos}
+    Para compilar código de esta API se requiere contar con el paquete \textbf{libgtk2.0-dev}, agregar al compilador C++ las banderas obtenidas mediante: \texttt{pkg-config --cflags gtk+-2.0}  y contar con un nucleo de Linux versión 2.4 o superior.
+
+  \subsection{Listado de dispositivos}
+    Para en listar los puertos de juegos conectados al sistema se utiliza la función miembro \texttt{int enumJoysticks(void)} la cual devuelve el numero de dispositivos encontrados. La lista creada es del tipo \texttt{vector<JsData>}. La función getList() permita acceder a esta lista.
+	
+  \subsection{Conexión y desconexión}
+    La función miembro \texttt{int connect(const char *filename)} permite conectarse el puerto de juegos especificado por \textit{filename}, e.g. \texttt{connect(/dev/input/js0)}. La función devuelve cero si la conexión fue exitosa.
+
+    %Para desconectar el puerto se utiliza la función \texttt{void disconnect()}.
+
+\subsection{Información del dispositivo}
+Las siguientes funciones permiten obtener información acerca del puerto de juegos al que se esta conectado.
+  \begin{itemize}
+    \item getDevName() Regresa el nombre del puerto de juegos, e.g. \textit{/dev/input/js0}.
+    \item getName() Regresa el nombre de identificación del puerto de juegos asignado por el fabricante.
+    \item getAxisCount() Regresa el numero de ejes del puerto de juegos.
+    \item getButtonCount() Regresa el numero de botones del puerto de juegos.
+    \item getAxis(unsigned int i) Regresa el valor del eje \textit{i}.
+    \item getButton(unsigned int i) Regresa el valor del botón \textit{i}.
+  \end{itemize}
+
+\subsection{Eventos}
+La API utiliza \href{http://library.gnome.org/devel/glib/}{glib} para monitorizar el estado del puerto de juegos y llamar a una función de retro llamada (\textit{callback}) cuando se genere un evento. Se debe iniciar un \textit{gtk main loop} en el programa principal par 
+activar los eventos.
+
+Las funciones miembro \texttt{setAxisCallback(fpt)} y \texttt{setButtonCallback(fpt)} permiten conectar una retro llamada a un evento generado por un botón o un eje del puerto de juegos. La función a conectar debe de tener la firma \texttt{fpt(unsigned int number, int value, void *userdata)}. Las funciones miembro \texttt{unsetAxisCallback()} y\texttt{ unsetButtonCallback()} permiten desconectar las retro llamadas.
+
+\section{Ejemplo}
+\label{ejemplo}
+  Junto con el código de esta API se provee de un programa ejemplo para demostrar su funcionamiento.
+
+  \subsection{Requisitos}
+  Para compilar el programa ejemplo se requiere contar con el paquete \textbf{libgtk2.0-dev}. Las banderas de compilación se especifican en el archivo \textit{makefile} de este ejemplo.
+
+\section{Notas}
+\label{notas}
+El código fuente de esta API puede ser descargado en \href{http://www.aurea-dt.com/Software/joystickAPI.php}{nuestro sitio web}, en donde también se pueden reportar errores en el código fuente. Para reportar errores en este documento favor de escribir a errata@aurea-dt.com.
+
+Para futuras versiones de esta API se contempla la calibración  y la retroalimentación háptica del joystick.
+
+
+
+%\bibliographystyle{plain}	% (uses file "plain.bst")
+%\bibliography{/home/mchc/Aurea/CPP/Programs/ADTlib-0.0.1/Manual/ADTlib.bib}
+\end{document}          
