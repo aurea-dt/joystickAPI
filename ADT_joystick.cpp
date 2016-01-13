@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-// ADT_joystick.h
-// Mario Chirinos Colunga
-// Aurea Desarrollo Tecnológico.
+// 	ADT_joystick.h
+// 	Mario Chirinos Colunga
+// 	Aurea Desarrollo Tecnológico.
 //	16 de Diciembre del 2010
 //------------------------------------------------------------------------------
 // Notes:
@@ -9,7 +9,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include "ADT_joystick.h"
-
+#include <glib.h>
 #include <iostream>
 #include <sys/types.h>
 #include <dirent.h>
@@ -37,6 +37,8 @@ ADT_joystick::ADT_joystick()
 ADT_joystick::~ADT_joystick()
 {
 	close(fd);
+	delete []vAxis;
+	delete []vButton;
 }
 //------------------------------------------------------------------------------
 int ADT_joystick::enumJoysticks()
@@ -127,6 +129,10 @@ int ADT_joystick::connect(const char *filename)
 		cout << "nAxis: " << nAxis << endl;
 		vAxis = new int[nAxis];
 		vButton = new bool[nButtons];
+		for(int i=0; i<nAxis; i++)
+		{
+			vAxis[i]=0;
+		}
 		channel = g_io_channel_unix_new (fd);
 		g_io_add_watch(channel, G_IO_IN, &jscallback, this);
 		cout << "Conected to: " << name << endl;

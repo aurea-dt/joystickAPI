@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-// ADT_joystick.h
-// Mario Chirinos Colunga
-// Aurea Desarrollo Tecnológico.
+// 	ADT_joystick.h
+// 	Mario Chirinos Colunga
+// 	Aurea Desarrollo Tecnológico.
 //	16 de Diciembre del 2010
 //------------------------------------------------------------------------------
 // Notes:
